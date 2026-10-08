@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: ¿Qué ensalada eres? | Divino Huerto</title>
+
+    <style>
+        :root {
+            --verde-oscuro: #1b5e20;
+            --verde-claro: #81c784;
+            --verde-fondo: #f1f8e9;
+            --texto: #263238;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--verde-fondo);
+            color: var(--texto);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(27, 94, 32, 0.15);
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            border-top: 8px solid var(--verde-oscuro);
+        }
+
+        .brand {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--verde-claro);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        h1 {
+            color: var(--verde-oscuro);
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background-color: #e0e0e0;
+            height: 6px;
+            border-radius: 3px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress {
+            background-color: var(--verde-oscuro);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            color: var(--texto);
+            line-height: 1.3;
+        }
+
+        .option-btn:hover,
+        .option-btn:active {
+            border-color: var(--verde-oscuro);
+            background-color: var(--verde-fondo);
+        }
+
+        #result {
+            display: none;
+        }
+
+        .result-title {
+            font-size: 1.6rem;
+            color: var(--verde-oscuro);
+            font-weight: bold;
+            margin-top: 20px;
+            line-height: 1.3;
+        }
+
+        .result-desc {
+            margin-top: 15px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #455a64;
+        }
+
+        .restart-btn {
+            background-color: var(--verde-oscuro);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 30px;
+            font-size: 1rem;
+            margin-top: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .restart-btn:hover {
+            background-color: #0d3c12;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="quiz-container">
+
+    <div class="brand">Divino Huerto</div>
+
+    <div id="quiz">
+
+        <h1 id="quiz-title">¿Qué ensalada eres? 🥗</h1>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress-line"></div>
+        </div>
+
+        <div class="question" id="question-text">
+            Cargando...
+        </div>
+
+        <div class="options-container" id="options-space"></div>
+
+    </div>
+
+    <div id="result">
+
+        <h1>¡Tu resultado!</h1>
+
+        <div class="result-title" id="result-salad"></div>
+
+        <div class="result-desc" id="result-text"></div>
+
+        <button class="restart-btn" onclick="restartQuiz()">
+            Repetir el Test 🔄
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const questions = [
+
+    {
+        question: "Te despiertas un sábado a las 7:00 AM sin alarma. ¿Qué haces?",
+        options: [
+            {
+                text: "Me enojo con la vida. Me tapo hasta la cabeza y pretendo que el mundo no existe.",
+                type: "sopera"
+            },
+            {
+                text: "Aprovecho el día. Un cafecito, estiro las piernas y a encarar la mañana con energía.",
+                type: "verde"
+            },
+            {
+                text: "Me quedo mirando el techo media hora pensando en las deudas y en los dolores de rodilla.",
+                type: "hervida"
+            }
+        ]
+    },
+
+    {
+        question: "¿Cómo reaccionas cuando te invitan a un plan que empieza a las 11:00 PM?",
+        options: [
+            {
+                text: "A esa hora yo ya estoy en el tercer sueño. ¿Estamos todos locos?",
+                type: "sopera"
+            },
+            {
+                text: "¡Me sumo! Llevo ropa cómoda por si refresca, pero las ganas de socializar no faltan.",
+                type: "verde"
+            },
+            {
+                text: "Voy, pero pongo cara de presupuesto vencido todo el tiempo y pregunto a qué hora nos vamos.",
+                type: "hervida"
+            }
+        ]
+    },
+
+    {
+        question: "En el grupo de WhatsApp de tus amigos o trabajo, tú eres quien...",
+        options: [
+            {
+                text: "Solo manda stickers para saludar y desaparece tres días.",
+                type: "sopera"
+            },
+            {
+                text: "Organiza los eventos, manda memes frescos y mantiene vivo el chat.",
+                type: "verde"
+            },
+            {
+                text: "Responde con un seco 'Ok' o un pulgar arriba cinco horas más tarde.",
+                type: "hervida"
+            }
+        ]
+    },
+
+    {
+        question: "Es domingo a la tarde. ¿Cuál es tu plan ideal?",
+        options: [
+            {
+                text: "Silencio absoluto, pijama de peluche y un maratón de series viejas.",
+                type: "sopera"
+            },
+            {
+                text: "Un paseíto al sol, plantas, aire libre y recargar buena vibra.",
+                type: "verde"
+            },
+            {
+                text: "Sufrir por anticipado porque mañana es lunes y hay que trabajar.",
+                type: "hervida"
+            }
+        ]
+    },
+
+    {
+        question: "¿Qué pasa por tu mente cuando ves un dolor o síntoma nuevo en tu cuerpo?",
+        options: [
+            {
+                text: "'Seguro es el frío, necesito un tecito y abrigarme más'.",
+                type: "sopera"
+            },
+            {
+                text: "'Voy a tomar más agua, comer mejor y moverme un poco para activar'.",
+                type: "verde"
+            },
+            {
+                text: "Busco en Google y me autodiagnostico tres enfermedades terminales en 5 minutos.",
+                type: "hervida"
+            }
+        ]
+    },
+
+    {
+        question: "Vas al supermercado y la fila está larguísima. ¿Qué haces?",
+        options: [
+            {
+                text: "Me resigno, entro en un estado zen de meditación y no miro a nadie.",
+                type: "sopera"
+            },
+            {
+                text: "Aprovecho para revisar el celular, contestar mensajes pendientes y ver la vida pasar.",
+                type: "verde"
+            },
+            {
+                text: "Empiezo a resoplar ruidosamente para que el cajero sienta mi presión psicológica.",
+                type: "hervida"
+            }
+        ]
+    },
+
+    {
+        question: "Elige tu nivel de tolerancia al drama ajeno:",
+        options: [
+            {
+                text: "Nulo. Si no me da paz o calorcito emocional, me alejo lentamente.",
+                type: "sopera"
+            },
+            {
+                text: "Lo escucho, te doy un consejo saludable, pero no me engancho.",
+                type: "verde"
+            },
+            {
+                text: "Me nutre. Traigan pochoclos que el chisme es mi combustible diario.",
+                type: "hervida"
+            }
+        ]
+    },
+
+    {
+        question: "¿Cómo manejas la tecnología o las nuevas actualizaciones del celular?",
+        options: [
+            {
+                text: "Si algo ya funciona, ¿para qué lo cambian? Me da flojera aprender de nuevo.",
+                type: "sopera"
+            },
+            {
+                text: "Me da curiosidad, le muevo a todo y le encuentro la vuelta rápido.",
+                type: "verde"
+            },
+            {
+                text: "Le tengo miedo. Siento que si toco el botón equivocado voy a borrar mis cuentas bancarias.",
+                type: "hervida"
+            }
+        ]
+    },
+
+    {
+        question: "Te ganas la lotería. ¿Qué es lo primero que compras?",
+        options: [
+            {
+                text: "La mejor cama del mercado, sábanas de 1000 hilos y un sillón masajeador.",
+                type: "sopera"
+            },
+            {
+                text: "Un viaje a la naturaleza, un invernadero gigante y comida gourmet.",
+                type: "verde"
+            },
+            {
+                text: "Pagar todas mis deudas para poder dormir en paz sin que me tiemble el ojo.",
+                type: "hervida"
+            }
+        ]
+    },
+
+    {
+        question: "Finalmente, ¿cómo definirías tu estado de ánimo general a esta edad?",
+        options: [
+            {
+                text: "Cómodo, nostálgico y amante del confort doméstico.",
+                type: "sopera"
+            },
+            {
+                text: "Fresquito, activo y tratando de envejecer con dignidad y onda.",
+                type: "verde"
+            },
+            {
+                text: "Blandito por fuera, pero bajo una presión constante como olla express.",
+                type: "hervida"
+            }
+        ]
+    }
+
+];
+
+
+const outcomes = {
+
+    sopera: {
+        title: "🍲 ¡Eres una Ensalada Sopera!",
+        desc: "A ver, técnicamente eres un gazpacho o un salmorejo, pero aceptémoslo: te encanta el nido. Eres una persona reconfortante, amante del pijama, la paz mental y el silencio. Tu plan ideal incluye cero interacciones sociales después de las 8 PM. En Divino Huerto te bancamos porque sabemos que la tranquilidad es salud."
+    },
+
+    verde: {
+        title: "🥬 ¡Eres una Ensalada Verde (Verdura Fresca)!",
+        desc: "¡Estás en tu mejor momento! Eres una persona crujiente, llena de vida, optimismo y fibra. Te gusta moverte, buscas el sol como los girasoles y contagias buena energía a los bajoneados de tus amigos. Eres el orgullo de Divino Huerto: ¡pura frescura natural que le hace bien al mundo!"
+    },
+
+    hervida: {
+        title: "🥦 ¡Eres una Ensalada Hervida!",
+        desc: "A ver... estás un poquito blando por los golpes de la vida, pero mantienes los nutrientes esenciales. Eres esa ensalada de papa, zanahoria y huevo que ya pasó por el fuego de las responsabilidades adultas y el estrés del día a día. Estás un poquito estresado y te quejas de la espalda, pero todos te quieren porque eres un clásico confiable. ¡Te hace falta un respiro verde!"
+    }
+
+};
+
+
+let currentQuestionIndex = 0;
+
+let scores = {
+    sopera: 0,
+    verde: 0,
+    hervida: 0
+};
+
+
+function startQuiz() {
+
+    currentQuestionIndex = 0;
+
+    scores = {
+        sopera: 0,
+        verde: 0,
+        hervida: 0
+    };
+
+    document.getElementById("quiz").style.display = "block";
+
+    document.getElementById("result").style.display = "none";
+
+    showQuestion();
+}
+
+
+function showQuestion() {
+
+    const progressPercent =
+        (currentQuestionIndex / questions.length) * 100;
+
+    document.getElementById("progress-line").style.width =
+        progressPercent + "%";
+
+
+    const currentQuestion =
+        questions[currentQuestionIndex];
+
+
+    document.getElementById("question-text").innerText =
+        currentQuestion.question;
+
+
+    const optionsSpace =
+        document.getElementById("options-space");
+
+
+    optionsSpace.innerHTML = "";
+
+
+    currentQuestion.options.forEach(option => {
+
+        const button =
+            document.createElement("button");
+
+        button.innerText =
+            option.text;
+
+        button.classList.add("option-btn");
+
+        button.onclick =
+            () => selectOption(option.type);
+
+        optionsSpace.appendChild(button);
+
+    });
+
+}
+
+
+function selectOption(type) {
+
+    scores[type]++;
+
+    currentQuestionIndex++;
+
+
+    if (currentQuestionIndex < questions.length) {
+
+        showQuestion();
+
+    } else {
+
+        showResults();
+
+    }
+
+}
+
+
+function showResults() {
+
+    document.getElementById("quiz").style.display =
+        "none";
+
+    document.getElementById("result").style.display =
+        "block";
+
+
+    let highestSalad =
+        Object.keys(scores).reduce(
+            (a, b) => scores[a] > scores[b] ? a : b
+        );
+
+
+    document.getElementById("result-salad").innerText =
+        outcomes[highestSalad].title;
+
+
+    document.getElementById("result-text").innerText =
+        outcomes[highestSalad].desc;
+
+}
+
+
+function restartQuiz() {
+    startQuiz();
+}
+
+
+window.onload = startQuiz;
+
+</script>
+
+</body>
+</html>
